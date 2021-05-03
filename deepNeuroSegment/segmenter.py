@@ -13,7 +13,7 @@ class Segmentation(ABC):
     @abstractmethod
     def perform_segmentation(self):
         pass
-
+    
 class WMHSegmentation(Segmentation):
 
     def perform_segmentation(self):
@@ -25,7 +25,7 @@ class ClaustrumSegmentation(Segmentation):
         claustrum_segmenter.claustrum_segmentation()
 
 def main():
-    concrete_strategy_a = ClaustrumSegmentation()
+    concrete_strategy_a = WMHSegmentation()
     concrete_strategy_a.perform_segmentation()
 
 
