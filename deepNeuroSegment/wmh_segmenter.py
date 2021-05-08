@@ -1,4 +1,5 @@
 import os
+import scipy
 import numpy as np
 import tensorflow as tf
 import SimpleITK as sitk
@@ -11,48 +12,54 @@ from keras import backend as K
 
 rows_standard = 200  #the input size 
 cols_standard = 200
-#TODO: nicely parse the arguments
-thresh = 30   # threshold for getting the brain mask
-per = 0.125
-two_modalities = True  # set two modalities or single modality as the input
-compute_metric = False # if you want to compute some evaluation metric between the segmentation result and the groundtruth
 os.environ["CUDA_VISIBLE_DEVICES"]="1" ## select which gpu to use; if using CPU, just comment this.
-inputDir = 'input_dir'   ## input directory
-outputDir = 'result'     ## output directory
-if not os.path.exists(outputDir):
-    os.mkdir(outputDir)
 
-def wmh_segmentation():
-        print("WMH!")
-        img_shape, imgs_test, model_dir, FLAIR_array, FLAIR_image = read_data()
-        original_pred = load_model(img_shape, imgs_test, model_dir, FLAIR_array)
-        filename_resultImage = os.path.join(outputDir,'out_mask.nii.gz')
-        img_out = sitk.GetImageFromArray(original_pred)
-        img_out.CopyInformation(FLAIR_image) #copy the meta information (voxel size, etc.) from the input raw image
-        sitk.WriteImage(img_out, filename_resultImage)
-        if compute_metric: 
-            get_metric()
 
-def read_data():
-    if two_modalities:
-        img_shape=(rows_standard, cols_standard, 2)
-        model_dir = 'models/pretrained_FLAIR_T1'
-        FLAIR_image = sitk.ReadImage(os.path.join(inputDir, 'FLAIR.nii.gz'))
-        FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
-        T1_image = sitk.ReadImage(os.path.join(inputDir, 'T1.nii.gz'))
-        T1_array = sitk.GetArrayFromImage(T1_image)
-        imgs_test = preprocessing(np.float32(FLAIR_array), np.float32(T1_array))  # data preprocessing 
-    else:
+def wmh_segmentation(FLAIR_path, T1_path=None, outputDir=None, compute_metric=False):
+    img_shape, imgs_test, model_dir, FLAIR_array, FLAIR_image = read_data(FLAIR_path, T1_path)
+    original_pred = load_model(img_shape, imgs_test, model_dir, FLAIR_array)
+
+    if outputDir:
+        save_wmh_segmentation(outputDir, original_pred, FLAIR_path)
+
+    # if you want to compute some evaluation metric between the segmentation result and the groundtruth
+    #if compute_metric: 
+    #    print_metric()
+
+    return original_pred
+
+def save_wmh_segmentation(outputDir, original_pred, FLAIR_path):
+    if not os.path.exists(outputDir):
+        os.mkdir(outputDir)
+    filename_resultImage = os.path.join(outputDir,'out_mask.nii.gz')
+    img_out = sitk.GetImageFromArray(original_pred)
+    FLAIR_image = sitk.ReadImage(FLAIR_path)
+    img_out.CopyInformation(FLAIR_image) #copy the meta information (voxel size, etc.) from the input raw image
+    sitk.WriteImage(img_out, filename_resultImage)
+
+
+def read_data(FLAIR_path, T1_path):
+    if T1_path is None:
+        # single modality as the input
         img_shape=(rows_standard, cols_standard, 1)
-        model_dir = 'models/pretrained_FLAIR_only'
-        FLAIR_image = sitk.ReadImage(os.path.join(inputDir, 'FLAIR.nii.gz')) #data preprocessing 
+        model_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSegmenter/pretrained_FLAIR_only'))
+        FLAIR_image = sitk.ReadImage(FLAIR_path)
         FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
         T1_array = []
+        imgs_test = preprocessing(np.float32(FLAIR_array), np.float32(T1_array))
+    else:
+        img_shape=(rows_standard, cols_standard, 2)
+        model_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSegmenter/pretrained_FLAIR_T1'))
+        FLAIR_image = sitk.ReadImage(FLAIR_path)
+        FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
+        T1_image = sitk.ReadImage(T1_path)
+        T1_array = sitk.GetArrayFromImage(T1_image)
         imgs_test = preprocessing(np.float32(FLAIR_array), np.float32(T1_array))
     return img_shape, imgs_test, model_dir, FLAIR_array, FLAIR_image
 
 def load_model(img_shape, imgs_test, model_dir, FLAIR_array):
     model = get_u_net(img_shape)
+    print(model_dir)
     model.load_weights(os.path.join(model_dir,'0.h5'))  # 3 ensemble models
     print('-'*30)
     print('Predicting masks on test data...') 
@@ -67,7 +74,8 @@ def load_model(img_shape, imgs_test, model_dir, FLAIR_array):
     original_pred = postprocessing(FLAIR_array, pred) # get the original size to match
     return original_pred
 
-def get_metric():
+def print_metric():
+    inputDir = 'input_dir'   ## input directory
     filename_testImage = os.path.join(inputDir + '/wmh.nii.gz')
     testImage, resultImage = getImages(filename_testImage, filename_resultImage)
     dsc = getDSC(testImage, resultImage)
@@ -171,7 +179,7 @@ def get_u_net(img_shape=None):
     return unet
 
 def preprocessing(FLAIR_array, T1_array):
-    
+    thresh = 30   # threshold for getting the brain mask
     brain_mask = np.ndarray(np.shape(FLAIR_array), dtype=np.float32)
     brain_mask[FLAIR_array >=thresh] = 1
     brain_mask[FLAIR_array < thresh] = 0
@@ -185,7 +193,7 @@ def preprocessing(FLAIR_array, T1_array):
     cols_o = np.shape(FLAIR_array)[2]
     FLAIR_array = FLAIR_array[:, int((rows_o-rows_standard)/2):int((rows_o-rows_standard)/2)+rows_standard, int((cols_o-cols_standard)/2):int((cols_o-cols_standard)/2)+cols_standard]
     
-    if two_modalities:
+    if len(T1_array)>0:
         T1_array -=np.mean(T1_array[brain_mask == 1])      #Gaussion Normalization
         T1_array /=np.std(T1_array[brain_mask == 1])
         T1_array = T1_array[:, int((rows_o-rows_standard)/2):int((rows_o-rows_standard)/2)+rows_standard, int((cols_o-cols_standard)/2):int((cols_o-cols_standard)/2)+cols_standard]
@@ -197,6 +205,7 @@ def preprocessing(FLAIR_array, T1_array):
 
 
 def postprocessing(FLAIR_array, pred):
+    per = 0.125
     start_slice = int(np.shape(FLAIR_array)[0]*per)
     num_o = np.shape(FLAIR_array)[1]  # original size
     rows_o = np.shape(FLAIR_array)[1]
