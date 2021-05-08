@@ -7,35 +7,54 @@ from keras.models import Model
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Cropping2D, ZeroPadding2D
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.merge import concatenate
-from evaluation import getDSC, getHausdorff, getLesionDetection, getAVD, getImages
 from keras import backend as K
+from .segmentation_types import AbstractSegmenter
+from .evaluation import getDSC, getHausdorff, getLesionDetection, getAVD, getImages
 
 rows_standard = 200  #the input size 
 cols_standard = 200
 os.environ["CUDA_VISIBLE_DEVICES"]="1" ## select which gpu to use; if using CPU, just comment this.
 
 
-def wmh_segmentation(FLAIR_path, T1_path=None, outputDir=None, compute_metric=False):
-    img_shape, imgs_test, model_dir, FLAIR_array, FLAIR_image = read_data(FLAIR_path, T1_path)
-    original_pred = load_model(img_shape, imgs_test, model_dir, FLAIR_array)
+class WMHSegmentation(AbstractSegmenter):
+    wmh_dict = {"pretrained_FLAIR_only": {'0.h5':'1RRHtM0P_9o3OrkaE99RnUOpTGvJXSwfF',
+                                          '1.h5':'1-W1OpQX1NbHYvu9MPEmp7KXEdzqF5LOJ',
+                                          '2.h5':'1PvG_mOpa8Nnu_PDJyBO5nmM23-b7mdOR'}, 
+                "pretrained_FLAIR_T1": {'0.h5':'12WGZfHxPcd2zLySGG90FwK2ZBwCPWonJ',
+                                        '1.h5':'1mcnMzOHTdc4GaUhMGay2aUqjnJwNK-lO',
+                                        '2.h5':'1szKGCFVnpHbFuyn-XYk2WMWywwwkZ9kz'}}
 
-    if outputDir:
-        save_wmh_segmentation(outputDir, original_pred, FLAIR_path)
+    def __init__(self, FLAIR_path, T1_path=None):
+        self.FLAIR_path = FLAIR_path
+        self.T1_path = T1_path
 
-    # if you want to compute some evaluation metric between the segmentation result and the groundtruth
-    #if compute_metric: 
-    #    print_metric()
+    def perform_segmentation(self, outputDir=None):
+        img_shape, imgs_test, model_dir, FLAIR_array, FLAIR_image = read_data(self.FLAIR_path, self.T1_path)
+        original_pred = load_model(img_shape, imgs_test, model_dir, FLAIR_array)
 
-    return original_pred
+        if outputDir:
+            self.save_segmentation(original_pred, outputDir)
 
-def save_wmh_segmentation(outputDir, original_pred, FLAIR_path):
-    if not os.path.exists(outputDir):
-        os.mkdir(outputDir)
-    filename_resultImage = os.path.join(outputDir,'out_mask.nii.gz')
-    img_out = sitk.GetImageFromArray(original_pred)
-    FLAIR_image = sitk.ReadImage(FLAIR_path)
-    img_out.CopyInformation(FLAIR_image) #copy the meta information (voxel size, etc.) from the input raw image
-    sitk.WriteImage(img_out, filename_resultImage)
+        # if you want to compute some evaluation metric between the segmentation result and the groundtruth
+        #if compute_metric: 
+        #    print_metric()
+
+        return original_pred
+
+    def save_segmentation(self, original_pred, outputDir):
+        if not os.path.exists(outputDir):
+            os.mkdir(outputDir)
+        filename_resultImage = os.path.join(outputDir,'out_mask.nii.gz')
+        img_out = sitk.GetImageFromArray(original_pred)
+        FLAIR_image = sitk.ReadImage(self.FLAIR_path)
+        img_out.CopyInformation(FLAIR_image) #copy the meta information (voxel size, etc.) from the input raw image
+        sitk.WriteImage(img_out, filename_resultImage)
+
+    def _get_links(self):
+        if self.T1_path:
+            return 'pretrained_FLAIR_T1', WMHSegmentation.wmh_dict['pretrained_FLAIR_T1']
+        else:
+            return 'pretrained_FLAIR_only', WMHSegmentation.wmh_dict['pretrained_FLAIR_only']
 
 
 def read_data(FLAIR_path, T1_path):

@@ -1,3 +1,10 @@
+from .segmentation_types import AbstractSegmenter
 
-def claustrum_segmentation():
-        print("Claustrum!")
+
+class ClaustrumSegmentation(AbstractSegmenter):
+
+    def perform_segmentation(self):
+        claustrum_segmenter.claustrum_segmentation()
+
+    def _get_links(self):
+        pass
