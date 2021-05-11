@@ -9,7 +9,6 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.merge import concatenate
 from keras import backend as K
 from .segmentation_types import AbstractSegmenter
-from .evaluation import getDSC, getHausdorff, getLesionDetection, getAVD, getImages
 
 rows_standard = 200  #the input size 
 cols_standard = 200
@@ -35,10 +34,6 @@ class WMHSegmentation(AbstractSegmenter):
         if outputDir:
             self.save_segmentation(original_pred, outputDir)
 
-        # if you want to compute some evaluation metric between the segmentation result and the groundtruth
-        #if compute_metric: 
-        #    print_metric()
-
         return original_pred
 
     def save_segmentation(self, original_pred, outputDir):
@@ -61,14 +56,14 @@ def read_data(FLAIR_path, T1_path):
     if T1_path is None:
         # single modality as the input
         img_shape=(rows_standard, cols_standard, 1)
-        model_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSegmenter/pretrained_FLAIR_only'))
+        model_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSeg/pretrained_FLAIR_only'))
         FLAIR_image = sitk.ReadImage(FLAIR_path)
         FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
         T1_array = []
         imgs_test = preprocessing(np.float32(FLAIR_array), np.float32(T1_array))
     else:
         img_shape=(rows_standard, cols_standard, 2)
-        model_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSegmenter/pretrained_FLAIR_T1'))
+        model_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSeg/pretrained_FLAIR_T1'))
         FLAIR_image = sitk.ReadImage(FLAIR_path)
         FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
         T1_image = sitk.ReadImage(T1_path)
@@ -92,21 +87,6 @@ def load_model(img_shape, imgs_test, model_dir, FLAIR_array):
     pred[pred[...,0] <= 0.45] = 0
     original_pred = postprocessing(FLAIR_array, pred) # get the original size to match
     return original_pred
-
-def print_metric():
-    inputDir = 'input_dir'   ## input directory
-    filename_testImage = os.path.join(inputDir + '/wmh.nii.gz')
-    testImage, resultImage = getImages(filename_testImage, filename_resultImage)
-    dsc = getDSC(testImage, resultImage)
-    avd = getAVD(testImage, resultImage) 
-    #h95 = getHausdorff(testImage, resultImage) # the calculation of H95 has some issues in python 3+. 
-    recall, f1 = getLesionDetection(testImage, resultImage)
-    print('Result of prediction:')
-    print('Dice',                dsc,       ('higher is better, max=1'))
-    #print('HD',                  h95, 'mm',  '(lower is better, min=0)')
-    print('AVD',                 avd,  '%',  '(lower is better, min=0)')
-    print('Lesion detection', recall,       '(higher is better, max=1)')
-    print('Lesion F1',            f1,       '(higher is better, max=1)')
 
 def dice_coef_for_training(y_true, y_pred, smooth = 1.):
     y_true_f = K.flatten(y_true)

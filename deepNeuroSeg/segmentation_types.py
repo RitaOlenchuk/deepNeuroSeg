@@ -2,7 +2,7 @@ import os
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict
-
+from .run_utils import run_script_inline
 
 class SegmentationType(Enum):
     WMH = 1
@@ -23,7 +23,7 @@ class AbstractSegmenter(ABC):
         pass
 
     @staticmethod
-    def get_from_cache(dir_name: str, urls: Dict[str, str], cache_dir: str = "~/.deepNeuroSegmenter"):
+    def get_from_cache(dir_name: str, urls: Dict[str, str], cache_dir: str = "~/.deepNeuroSeg"):
         cache_dir = os.path.realpath(os.path.expanduser(cache_dir))
         print(cache_dir)
         if not os.path.exists(cache_dir):
