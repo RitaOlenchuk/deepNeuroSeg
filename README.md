@@ -1,1 +1,1 @@
-# deepNeuroSegment
+# deepNeuroSeg
