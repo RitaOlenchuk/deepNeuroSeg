@@ -1,5 +1,6 @@
 import os
 import scipy
+import logging
 import numpy as np
 import tensorflow as tf
 import SimpleITK as sitk
@@ -16,12 +17,6 @@ os.environ["CUDA_VISIBLE_DEVICES"]="1" ## select which gpu to use; if using CPU,
 
 
 class WMHSegmentation(AbstractSegmenter):
-    google_wmh_dict = {"pretrained_FLAIR_only": {'0.h5':'1RRHtM0P_9o3OrkaE99RnUOpTGvJXSwfF',
-                                                 '1.h5':'1-W1OpQX1NbHYvu9MPEmp7KXEdzqF5LOJ',
-                                                 '2.h5':'1PvG_mOpa8Nnu_PDJyBO5nmM23-b7mdOR'}, 
-                       "pretrained_FLAIR_T1": {'0.h5':'12WGZfHxPcd2zLySGG90FwK2ZBwCPWonJ',
-                                               '1.h5':'1mcnMzOHTdc4GaUhMGay2aUqjnJwNK-lO',
-                                               '2.h5':'1szKGCFVnpHbFuyn-XYk2WMWywwwkZ9kz'}}
     wmh_dict = {"pretrained_FLAIR_only": {'0.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21110&authkey=ANvFSyNpSSjh3NQ',
                                           '1.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21111&authkey=APGrgxpxl_4OBHE',
                                           '2.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21109&authkey=AONWUbE5llZpbS4'}, 
@@ -79,10 +74,10 @@ def read_data(FLAIR_path, T1_path):
 
 def load_model(img_shape, imgs_test, model_dir, FLAIR_array):
     model = get_u_net(img_shape)
-    print(model_dir)
+    logging.info(model_dir)
     model.load_weights(os.path.join(model_dir,'0.h5'))  # 3 ensemble models
-    print('-'*30)
-    print('Predicting masks on test data...') 
+    logging.info('-'*30)
+    logging.info('Predicting masks on test data...') 
     pred_1 = model.predict(imgs_test, batch_size=1, verbose=1)
     model.load_weights(os.path.join(model_dir, '1.h5')) 
     pred_2 = model.predict(imgs_test, batch_size=1, verbose=1)

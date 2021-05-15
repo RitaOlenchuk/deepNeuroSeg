@@ -5,7 +5,7 @@ from deepNeuroSeg import SegmentationFactory, SegmentationType
 
 def test_wmh_segmenter():
     concrete_strategy_a = SegmentationFactory.create_segmenter(SegmentationType.WMH,
-        FLAIR_path='/Users/rita/Uni/pmsd/deepNeuroSeg/deepNeuroSeg/input_dir/FLAIR.nii.gz',
-        T1_path='/Users/rita/Uni/pmsd/deepNeuroSeg/deepNeuroSeg/input_dir/T1.nii.gz')
+        FLAIR_path='/Users/rita/Uni/pmsd/test_your_data_WMH/input_dir/FLAIR.nii.gz',
+        T1_path='/Users/rita/Uni/pmsd/test_your_data_WMH/input_dir/T1.nii.gz')
     pred_image = concrete_strategy_a.perform_segmentation()
-    concrete_strategy_a.save_segmentation(original_pred=pred_image, outputDir='/Users/rita/Uni/pmsd/deepNeuroSeg/deepNeuroSeg/result')
+    concrete_strategy_a.save_segmentation(original_pred=pred_image, outputDir='/Users/rita/Uni/pmsd/test_your_data_WMH/result')
