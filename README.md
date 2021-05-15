@@ -27,6 +27,8 @@ The resulting mask will be saved in the user-specified directory under the name 
 ### Python
 In Python user will have to follow the following steps by creating a <code>SegmentationFactory</code> object that can have a segmentation type either <code>SegmentationType.WMH</code> or <code>SegmentationType.Claustrum</code>.
 ```ruby
+form deepNeuroSeg import SegmentationFactory, SegmentationType
+
 segmenter = SegmentationFactory.create_segmenter(SegmentationType.WMH, 
                                                     FLAIR_path='YOUR_PATH',
                                                     T1_path='YOUR_PATH')
