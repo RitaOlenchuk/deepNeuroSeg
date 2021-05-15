@@ -1,16 +1,7 @@
 # deepNeuroSeg
 There are two different segmentation tasks you can perform: White Matter Lesions (WMH - White Matter Hyperintensities) or Claustrum Segmentation. WMH segmentation can be performed either using FLAIR only or both FLAIR and T1. The results would be similar to our experience [1]. The default is using both of them.
 
-<figure>
-    <img src="images/wmh_example.png"
-        alt="WMH Segmentation example"
-        width="500px"
-        style="margin-left: 200px"
-        title="This is a Title"
-    />
-    <figcaption align = "center"><b>Fig.1: A sample of MR slice from FLAIR modality (left), and its corresponding segmentation of WMH (right).</b></figcaption>
-</figure>
-
+![](https://github.com/RitaOlenchuk/deepNeuroSeg/blob/main/images/wmh_example.png?raw=true)
 
 Claustrum segmentation is still in development.
 # How to:
