@@ -16,12 +16,18 @@ os.environ["CUDA_VISIBLE_DEVICES"]="1" ## select which gpu to use; if using CPU,
 
 
 class WMHSegmentation(AbstractSegmenter):
-    wmh_dict = {"pretrained_FLAIR_only": {'0.h5':'1RRHtM0P_9o3OrkaE99RnUOpTGvJXSwfF',
-                                          '1.h5':'1-W1OpQX1NbHYvu9MPEmp7KXEdzqF5LOJ',
-                                          '2.h5':'1PvG_mOpa8Nnu_PDJyBO5nmM23-b7mdOR'}, 
-                "pretrained_FLAIR_T1": {'0.h5':'12WGZfHxPcd2zLySGG90FwK2ZBwCPWonJ',
-                                        '1.h5':'1mcnMzOHTdc4GaUhMGay2aUqjnJwNK-lO',
-                                        '2.h5':'1szKGCFVnpHbFuyn-XYk2WMWywwwkZ9kz'}}
+    google_wmh_dict = {"pretrained_FLAIR_only": {'0.h5':'1RRHtM0P_9o3OrkaE99RnUOpTGvJXSwfF',
+                                                 '1.h5':'1-W1OpQX1NbHYvu9MPEmp7KXEdzqF5LOJ',
+                                                 '2.h5':'1PvG_mOpa8Nnu_PDJyBO5nmM23-b7mdOR'}, 
+                       "pretrained_FLAIR_T1": {'0.h5':'12WGZfHxPcd2zLySGG90FwK2ZBwCPWonJ',
+                                               '1.h5':'1mcnMzOHTdc4GaUhMGay2aUqjnJwNK-lO',
+                                               '2.h5':'1szKGCFVnpHbFuyn-XYk2WMWywwwkZ9kz'}}
+    wmh_dict = {"pretrained_FLAIR_only": {'0.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21110&authkey=ANvFSyNpSSjh3NQ',
+                                          '1.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21111&authkey=APGrgxpxl_4OBHE',
+                                          '2.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21109&authkey=AONWUbE5llZpbS4'}, 
+                "pretrained_FLAIR_T1": {'0.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21113&authkey=ALAHNnoGtEi7tl4',
+                                        '1.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21114&authkey=AAl5nwEj0AgyAcQ',
+                                        '2.h5':'57A6FFA5FD700FDB&resid=57A6FFA5FD700FDB%21112&authkey=ALZ8G_0zUgLo-ro'}}
 
     def __init__(self, FLAIR_path, T1_path=None):
         self.FLAIR_path = FLAIR_path
