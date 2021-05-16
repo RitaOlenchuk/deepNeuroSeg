@@ -2,7 +2,7 @@
 There are two different segmentation tasks you can perform: White Matter Lesions (WMH - White Matter Hyperintensities) or Claustrum Segmentation. WMH segmentation can be performed either using FLAIR only or both FLAIR and T1. The results would be similar to our experience [1]. The default is using both of them.
 
 ![](https://github.com/RitaOlenchuk/deepNeuroSeg/blob/main/images/wmh_example.png?raw=true)
-Fig.1: A sample of MR slice from FLAIR modality (left), and its corresponding segmentation of WMH (right).
+Fig.1: Segmentation result on Singapore 34. From left to right: FLAIR MR image, the associated ground truth, segmentation result using FLAIR modality only and segmentation result using FLAIR and T1 modalities. In column SegF LAIR and SegF LAIR+T1, the green area is the overlap between the segmentation maps and the ground-truth, the red pixels are the false negatives and the black ones are the false positives.
 
 Claustrum segmentation is still in development.
 # How to:
