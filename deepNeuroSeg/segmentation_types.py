@@ -6,7 +6,7 @@ from .run_utils import run_script_inline
 
 class SegmentationType(Enum):
     WMH = 1
-    Claustrum= 2
+    Claustrum = 2
 
 
 class AbstractSegmenter(ABC):
