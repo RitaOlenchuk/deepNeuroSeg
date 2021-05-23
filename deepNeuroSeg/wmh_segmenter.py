@@ -29,7 +29,15 @@ class WMHSegmentation(AbstractSegmenter):
         self.T1_path = T1_path
 
     def perform_segmentation(self, outputDir=None):
-        img_shape, imgs_test, model_dir, FLAIR_array, FLAIR_image = read_data(self.FLAIR_path, self.T1_path)
+        """Performs segmentation by loading three required models from ./~deepNeuroSeg cache directory.
+
+        Args:
+            outputDir (str, optional): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz. Defaults to None meaning not saved.
+
+        Returns:
+            numpy.ndarray: the predicted mask.
+        """
+        img_shape, imgs_test, model_dir, FLAIR_array = read_data(self.FLAIR_path, self.T1_path)
         original_pred = load_model(img_shape, imgs_test, model_dir, FLAIR_array)
 
         if outputDir:
@@ -37,11 +45,17 @@ class WMHSegmentation(AbstractSegmenter):
 
         return original_pred
 
-    def save_segmentation(self, original_pred, outputDir):
+    def save_segmentation(self, mask, outputDir):
+        """Saves provided mask as out_mask.nii.gz in the given directory.
+
+        Args:
+            mask (numpy.ndarray): the mask.
+            outputDir ([type]): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz
+        """
         if not os.path.exists(outputDir):
             os.mkdir(outputDir)
         filename_resultImage = os.path.join(outputDir,'out_mask.nii.gz')
-        img_out = sitk.GetImageFromArray(original_pred)
+        img_out = sitk.GetImageFromArray(mask)
         FLAIR_image = sitk.ReadImage(self.FLAIR_path)
         img_out.CopyInformation(FLAIR_image) #copy the meta information (voxel size, etc.) from the input raw image
         sitk.WriteImage(img_out, filename_resultImage)
@@ -70,11 +84,12 @@ def read_data(FLAIR_path, T1_path):
         T1_image = sitk.ReadImage(T1_path)
         T1_array = sitk.GetArrayFromImage(T1_image)
         imgs_test = preprocessing(np.float32(FLAIR_array), np.float32(T1_array))
-    return img_shape, imgs_test, model_dir, FLAIR_array, FLAIR_image
+    return img_shape, imgs_test, model_dir, FLAIR_array
 
 def load_model(img_shape, imgs_test, model_dir, FLAIR_array):
     model = get_u_net(img_shape)
     logging.info(model_dir)
+    print(os.path.join(model_dir,'0.h5'))
     model.load_weights(os.path.join(model_dir,'0.h5'))  # 3 ensemble models
     logging.info('-'*30)
     logging.info('Predicting masks on test data...') 
