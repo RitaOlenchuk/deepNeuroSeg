@@ -1,7 +1,7 @@
 # deepNeuroSeg
 There are two different segmentation tasks you can perform with deepNeuroSeg: White Matter Hyperintensities (WMH) and Claustrum Segmentation. To learn details about the used deep-learning models please refer to the publications [1] and [2]. As soon as the underlying models are required, they will be downloaded to your computer and placed in ~/.deepNeuroSeg folder.
 
-## White Matter Hyperintenisties (WMH) Segmentation
+## White Matter Hyperintensities (WMH) Segmentation
 WMH segmentation can be performed either using FLAIR only or both FLAIR and T1 scans. The results would be similar to our experience [1], but the default is using both of them.
 
 ![](https://github.com/RitaOlenchuk/deepNeuroSeg/blob/main/images/wmh_example.png?raw=true)
@@ -66,7 +66,7 @@ Option 2: The output numpy array can be inspected first, and then saved with <co
 prediction = segmenter.perform_segmentation()
 segmenter.save_segmentation(mask=prediction, outputDir='YOUR_PATH')
 ```
-In both cases, the output mask will be save to specified directory under the name <code>out_mask.nii.gz</code>.
+In both cases, the output mask will be saved to a specified directory under the name <code>out_mask.nii.gz</code>.
 
 # References:
 
