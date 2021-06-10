@@ -1,13 +1,13 @@
 # deepNeuroSeg
 There are two different segmentation tasks you can perform with deepNeuroSeg: White Matter Hyperintensities (WMH) and Claustrum Segmentation. To learn details about the used deep-learning models please refer to the publications [1] and [2]. As soon as the underlying models are required, they will be downloaded to your computer and placed in ~/.deepNeuroSeg folder.
 
-# White Matter Hyperintenisties (WMH) Segmentation
+## White Matter Hyperintenisties (WMH) Segmentation
 WMH segmentation can be performed either using FLAIR only or both FLAIR and T1 scans. The results would be similar to our experience [1], but the default is using both of them.
 
 ![](https://github.com/RitaOlenchuk/deepNeuroSeg/blob/main/images/wmh_example.png?raw=true)
 Fig.1: Segmentation result on Singapore 34 [1]. From left to right: FLAIR MR image, the associated ground truth, segmentation result using FLAIR modality only and segmentation result using FLAIR and T1 modalities. In column SegF LAIR and SegF LAIR+T1, the green area is the overlap between the segmentation maps and the ground-truth, the red pixels are the false negatives and the black ones are the false positives.
 
-# Claustrum Segmentation
+## Claustrum Segmentation
 For Claustrum Segmentation the T1 scan with .nii extension must be provided. 
 
 # How to:
