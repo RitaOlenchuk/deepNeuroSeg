@@ -15,7 +15,7 @@ Run deepNeuroSeg either in command line or Python.
 ## Command line
 deepNeuroSeg performs two different segmentation tasks. The desired task must be specified with <code>--type</code> that is either equals to <code>wmh</code> (White Matter Hyperintensities) or <code>c</code> (Claustrum). For example:
 ```ruby
-deepNeuroSeg --type wmh --flair YOUR_PATH.nii.gz --o YOUR_PATH
+deepNeuroSeg --type wmh --flair YOUR_PATH.nii.gz --t1 YOUR_PATH.nii.gz --o YOUR_PATH
 ```
 Or: 
 ```ruby
