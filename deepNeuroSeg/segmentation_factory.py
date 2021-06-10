@@ -9,7 +9,7 @@ class SegmentationFactory:
         """Initializes segmenter of the required type and parameters. In case of WMH Segmenter the FLAIR file path (.nii.gz) needs to be specified, optionaly the T1 file path (.nii.gz) can be provided as well.
 
         Args:
-            segmentationType (SegmentationType): Either SegmentationType.WMH or SegmentationType.Claustrum corresponding to White Matter Hyperintensities or Claustrum Segmentation accordingly.
+            segmentationType (SegmentationType): Either SegmentationType.WMH or SegmentationType.Claustrum corresponding to White Matter Hyperintensities or Claustrum Segmentation respectively.
 
         Raises:
             NotImplemented: in case SegmentationType is neither WMH nor Claustrum. 

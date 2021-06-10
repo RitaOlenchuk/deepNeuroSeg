@@ -111,7 +111,7 @@ def dice_coef_for_training(y_true, y_pred, smooth = 1.):
     return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
 
 def dice_coef_loss(y_true, y_pred):
-    return -dice_coef_for_training(y_true, y_pred)
+    return - dice_coef_for_training(y_true, y_pred)
 
 def conv_l_relu(nd, k=3, inputs=None):
     conv = Conv2D(nd, k, padding='same')(inputs)
