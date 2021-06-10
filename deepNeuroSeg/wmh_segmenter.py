@@ -2,7 +2,6 @@ import os
 import scipy
 import logging
 import numpy as np
-import tensorflow as tf
 import SimpleITK as sitk
 from keras.models import Model
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Cropping2D, ZeroPadding2D

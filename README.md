@@ -1,55 +1,75 @@
 # deepNeuroSeg
-There are two different segmentation tasks you can perform: White Matter Lesions (WMH - White Matter Hyperintensities) and Claustrum Segmentation. The required models will be downloaded to ~/.deepNeuroSeg as soon as needed. WMH segmentation can be performed either using FLAIR only or both FLAIR and T1. The results would be similar to our experience [1]. The default is using both of them.
+There are two different segmentation tasks you can perform with deepNeuroSeg: White Matter Hyperintensities (WMH) and Claustrum Segmentation. To learn details about the used deep-learning models please refer to the publications [1] and [2]. As soon as the underlying models are required, they will be downloaded to your computer and placed in ~/.deepNeuroSeg folder.
+
+# White Matter Hyperintenisties (WMH) Segmentation
+WMH segmentation can be performed either using FLAIR only or both FLAIR and T1 scans. The results would be similar to our experience [1], but the default is using both of them.
 
 ![](https://github.com/RitaOlenchuk/deepNeuroSeg/blob/main/images/wmh_example.png?raw=true)
 Fig.1: Segmentation result on Singapore 34 [1]. From left to right: FLAIR MR image, the associated ground truth, segmentation result using FLAIR modality only and segmentation result using FLAIR and T1 modalities. In column SegF LAIR and SegF LAIR+T1, the green area is the overlap between the segmentation maps and the ground-truth, the red pixels are the false negatives and the black ones are the false positives.
 
-Claustrum segmentation is still in development.
+# Claustrum Segmentation
+For Claustrum Segmentation the T1 scan with .nii extension must be provided. 
 
 # How to:
 Run deepNeuroSeg either in command line or Python.
-### Command line
-deepNeuroSeg performs two different segmentation tasks. The desired task must be specified with <code>--type</code> that is either equals to <code>wmh</code> (White Matter Hyperintensities (Lesions)) or <code>c</code> (Claustrum). For example:
+## Command line
+deepNeuroSeg performs two different segmentation tasks. The desired task must be specified with <code>--type</code> that is either equals to <code>wmh</code> (White Matter Hyperintensities) or <code>c</code> (Claustrum). For example:
 ```ruby
 deepNeuroSeg --type wmh --flair YOUR_PATH.nii.gz --o YOUR_PATH
 ```
+Or: 
+```ruby
+deepNeuroSeg --type c --t1 YOUR_PATH.nii --o YOUR_PATH
+```
+
 For more details see:
 ```ruby
 deepNeuroSeg --help
 Options:
   --type [wmh|c]  Either 'wmh' (White Matter Hyperintensities) or 'c'
                   (Claustrum)
-  --flair TEXT    Path to .nii.gz file of a FLAIR scan.  [required]
-  --t1 TEXT       Path to .nii.gz file of a T1 scan. [optional]
+  --flair PATH    Path to file of a FLAIR scan.
+  --t1 PATH       Path to file of a T1 scan.
   --o TEXT        Directory path where to save the resulting segmentation.
                   [required]
+  --help          Show this message and exit.
 ```
 The resulting mask will be saved in the user-specified directory under the name <code>out_mask.nii.gz</code>.
-### Python
-In Python user will have to follow the following steps by creating a <code>SegmentationFactory</code> object that can have a segmentation type either <code>SegmentationType.WMH</code> or <code>SegmentationType.Claustrum</code>. An example for WMH Segmentation with both FLAIR and T1 modalities:
+
+## Python
+In Python user will have to follow the next steps:
+1. Import <code>deepNeuroSeg</code>
 ```ruby
 from deepNeuroSeg import SegmentationFactory, SegmentationType
-
+```
+2. Create a <code>SegmentationFactory</code> object with segmentation type either <code>SegmentationType.Claustrum</code> or <code>SegmentationType.WMH</code>. An example for WMH Segmentation with both FLAIR and T1 modalities:
+```ruby
 segmenter = SegmentationFactory.create_segmenter(SegmentationType.WMH, 
                                                     FLAIR_path='YOUR_PATH',
                                                     T1_path='YOUR_PATH')
 ```
-An example for WMH Segmentation with FLAIR only:
+Or claustrum segmentation:
 ```ruby
-from deepNeuroSeg import SegmentationFactory, SegmentationType
-
-segmenter = SegmentationFactory.create_segmenter(SegmentationType.WMH, 
-                                                    FLAIR_path='YOUR_PATH')
+segmenter = SegmentationFactory.create_segmenter(SegmentationType.Claustrum, 
+                                                  T1_path='YOUR_PATH')
 ```
-Then the segmentation can be performed. Here user can specify the output directory where the segmentation mask will be saved as <code>out_mask.nii.gz</code>:
+
+3. Next the segmentation can be performed.
+   
+Option 1: The user can specify the output directory directly in <code>perform_segmentation</code> method.
 ```ruby
 prediction = segmenter.perform_segmentation(outputDir='YOUR_PATH')
 ```
-or inspect the numpy array yourself and save it with <code>save_segmentation</code> method.
+Option 2: The output numpy array can be inspected first, and then saved with <code>save_segmentation</code> function.
+
 ```ruby
 prediction = segmenter.perform_segmentation()
 segmenter.save_segmentation(mask=prediction, outputDir='YOUR_PATH')
 ```
-In both cases, the prediction can be saved in the output directory desired by the user under the name <code>out_mask.nii.gz</code>.
+In both cases, the output mask will be save to specified directory under the name <code>out_mask.nii.gz</code>.
+
+# References:
 
 [1]: Li, Hongwei, et al. "Fully convolutional network ensembles for white matter hyperintensities segmentation in MR images." NeuroImage 183 (2018): 650-665.
+
+[2]: Li, Hongwei, et al. "Complex Grey Matter Structure Segmentation in Brains via Deep Learning: Example of the Claustrum." arXiv preprint arXiv:2008.03465 (2020).
