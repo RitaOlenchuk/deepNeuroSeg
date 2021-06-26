@@ -14,16 +14,16 @@ For Claustrum Segmentation the T1 scan must be provided.
 Run deepNeuroSeg either in command line or Python.
 ## Command line
 deepNeuroSeg performs two different segmentation tasks. The desired task must be specified with <code>--type</code> that is either equals to <code>wmh</code> (White Matter Hyperintensities) or <code>c</code> (Claustrum). For example:
-```ruby
+```bash
 deepNeuroSeg --type wmh --flair YOUR_PATH.nii.gz --t1 YOUR_PATH.nii.gz --o YOUR_PATH
 ```
 Or: 
-```ruby
+```bash
 deepNeuroSeg --type c --t1 YOUR_PATH.nii.gz --o YOUR_PATH
 ```
 
 For more details see:
-```ruby
+```text
 deepNeuroSeg --help
 Options:
   --type [wmh|c]  Either 'wmh' (White Matter Hyperintensities) or 'c'
@@ -34,22 +34,22 @@ Options:
                   [required]
   --help          Show this message and exit.
 ```
-The resulting mask will be saved with user-specified .nii.gz file name or in the user-specified directory under the name <code>out_mask.nii.gz</code>.
+The resulting mask will be saved with user-specified .nii.gz file name or in the user-specified directory under the name out_mask.nii.gz.
 
 ## Python
 In Python user will have to follow the next steps:
 1. Import <code>deepNeuroSeg</code>
-```ruby
+```python
 from deepNeuroSeg import SegmentationFactory, SegmentationType
 ```
 2. Create a <code>SegmentationFactory</code> object with segmentation type either <code>SegmentationType.Claustrum</code> or <code>SegmentationType.WMH</code>. An example for WMH Segmentation with both FLAIR and T1 modalities:
-```ruby
+```python
 segmenter = SegmentationFactory.create_segmenter(SegmentationType.WMH, 
                                                     FLAIR_path='YOUR_PATH',
                                                     T1_path='YOUR_PATH')
 ```
 Or claustrum segmentation:
-```ruby
+```python
 segmenter = SegmentationFactory.create_segmenter(SegmentationType.Claustrum, 
                                                   T1_path='YOUR_PATH')
 ```
@@ -57,24 +57,24 @@ segmenter = SegmentationFactory.create_segmenter(SegmentationType.Claustrum,
 3. Next the segmentation can be performed.
    
 Option 1: The user can specify the output path directly in <code>perform_segmentation</code> method.
-```ruby
+```python
 prediction = segmenter.perform_segmentation(outputDir='YOUR_PATH')
 ```
 Option 2: The output numpy array can be inspected first, and then saved with <code>save_segmentation</code> function.
 
-```ruby
+```python
 prediction = segmenter.perform_segmentation()
 segmenter.save_segmentation(mask=prediction, outputDir='YOUR_PATH')
 ```
-In both cases, the output mask will be saved with user-specified .nii.gz file name or in user-specified directory under the name <code>out_mask.nii.gz</code>.
+In both cases, the output mask will be saved with user-specified .nii.gz file name or in user-specified directory under the name out_mask.nii.gz.
 
 **Special feature of Claustrum Segmentation:**
 
 The user can check the orientation of the coronal and axial images by selecting the special feature in <code>perform_segmentation</code> method:
-```ruby
+```python
 prediction = segmenter.perform_segmentation(check_orientation=True)
 ```
-<code>check_orientation=True</code> will save the coronal and axial images under ~/.deepNeuroSeg/images/.
+<code>check_orientation=True</code> will save the images of coronal and axial slices under ~/.deepNeuroSeg/images/.
 
 
 # References:
