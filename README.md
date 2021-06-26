@@ -8,7 +8,7 @@ WMH segmentation can be performed either using FLAIR only or both FLAIR and T1 s
 Fig.1: Segmentation result on Singapore 34 [1]. From left to right: FLAIR MR image, the associated ground truth, segmentation result using FLAIR modality only and segmentation result using FLAIR and T1 modalities. In column SegF LAIR and SegF LAIR+T1, the green area is the overlap between the segmentation maps and the ground-truth, the red pixels are the false negatives and the black ones are the false positives.
 
 ## Claustrum Segmentation
-For Claustrum Segmentation the T1 scan with .nii extension must be provided. 
+For Claustrum Segmentation the T1 scan must be provided. 
 
 # How to:
 Run deepNeuroSeg either in command line or Python.
@@ -19,7 +19,7 @@ deepNeuroSeg --type wmh --flair YOUR_PATH.nii.gz --t1 YOUR_PATH.nii.gz --o YOUR_
 ```
 Or: 
 ```ruby
-deepNeuroSeg --type c --t1 YOUR_PATH.nii --o YOUR_PATH
+deepNeuroSeg --type c --t1 YOUR_PATH.nii.gz --o YOUR_PATH
 ```
 
 For more details see:
@@ -28,13 +28,13 @@ deepNeuroSeg --help
 Options:
   --type [wmh|c]  Either 'wmh' (White Matter Hyperintensities) or 'c'
                   (Claustrum)
-  --flair PATH    Path to file of a FLAIR scan.
-  --t1 PATH       Path to file of a T1 scan.
-  --o TEXT        Directory path where to save the resulting segmentation.
+  --flair PATH    Path to nii.gz file with a FLAIR scan.
+  --t1 PATH       Path to nii.gz file with a T1 scan.
+  --o TEXT        Path where to save the resulting segmentation. Directory path or specific nii.gz file path.
                   [required]
   --help          Show this message and exit.
 ```
-The resulting mask will be saved in the user-specified directory under the name <code>out_mask.nii.gz</code>.
+The resulting mask will be saved with user-specified .nii.gz file name or in the user-specified directory under the name <code>out_mask.nii.gz</code>.
 
 ## Python
 In Python user will have to follow the next steps:
@@ -56,7 +56,7 @@ segmenter = SegmentationFactory.create_segmenter(SegmentationType.Claustrum,
 
 3. Next the segmentation can be performed.
    
-Option 1: The user can specify the output directory directly in <code>perform_segmentation</code> method.
+Option 1: The user can specify the output path directly in <code>perform_segmentation</code> method.
 ```ruby
 prediction = segmenter.perform_segmentation(outputDir='YOUR_PATH')
 ```
@@ -66,7 +66,16 @@ Option 2: The output numpy array can be inspected first, and then saved with <co
 prediction = segmenter.perform_segmentation()
 segmenter.save_segmentation(mask=prediction, outputDir='YOUR_PATH')
 ```
-In both cases, the output mask will be saved to a specified directory under the name <code>out_mask.nii.gz</code>.
+In both cases, the output mask will be saved with user-specified .nii.gz file name or in user-specified directory under the name <code>out_mask.nii.gz</code>.
+
+**Special feature of Claustrum Segmentation:**
+
+The user can check the orientation of the coronal and axial images by selecting the special feature in <code>perform_segmentation</code> method:
+```ruby
+prediction = segmenter.perform_segmentation(check_orientation=True)
+```
+<code>check_orientation=True</code> will save the coronal and axial images under ~/.deepNeuroSeg/images/.
+
 
 # References:
 

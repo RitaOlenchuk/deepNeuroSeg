@@ -1,6 +1,7 @@
 import os
 import scipy
 import numpy as np
+from PIL import Image
 from tensorflow import keras
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Cropping2D, ZeroPadding2D, Activation
@@ -23,14 +24,17 @@ class ClaustrumSegmentation(AbstractSegmenter):
     def __init__(self, T1_path):
         self.T1_path = T1_path
 
+    def get_T1_path(self):
+        return self.T1_path
+
     def _get_links(self):
         return 'pretrained_T1_claustrum', ClaustrumSegmentation.c_dict['pretrained_T1_claustrum']
 
-    def perform_segmentation(self, outputDir=None):
+    def perform_segmentation(self, outputPath=None, check_orientation=False):
         """Performs claustrum segmentation by loading required models from ./~deepNeuroSeg/pretrained_T1_claustrum cache directory.
 
         Args:
-            outputDir (str, optional): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz. Defaults to None meaning not saved.
+            outputPath (str, optional): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz. Defaults to None meaning not saved.
 
         Returns:
             numpy.ndarray: the predicted mask.
@@ -51,6 +55,30 @@ class ClaustrumSegmentation(AbstractSegmenter):
         corona_array =  self.pre_processing(corona_array, img_shape)
         axial_array =  self.pre_processing(axial_array, img_shape)
 
+        if check_orientation:
+            #this is to check the orientation of your images is right or not. Please check /images/coronal and /images/axial
+            cache_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSeg'))
+            image_path = os.path.join(cache_dir,'images')
+            direction_1 = 'coronal'
+            direction_2 = 'axial'
+            if not os.path.exists(image_path):
+                os.makedirs(image_path)
+            if not os.path.exists(os.path.join(image_path, direction_1)):
+                os.makedirs(os.path.join(image_path, direction_1))
+            if not os.path.exists(os.path.join(image_path, direction_2)):
+                os.makedirs(os.path.join(image_path, direction_2))
+            for ss in range(np.shape(corona_array)[0]):
+                slice_ = 255*(corona_array[ss] - np.min(corona_array[ss]))/(np.max(corona_array[ss]) - np.min(corona_array[ss]))
+                np_slice_ = np.squeeze(slice_, axis=2)
+                im = Image.fromarray(np.uint8(np_slice_))
+                im.save(os.path.join(image_path, direction_1, str(ss)+'.png'))
+            
+            for ss in range(np.shape(axial_array)[0]):
+                slice_ = 255*(axial_array[ss] - np.min(axial_array[ss]))/(np.max(axial_array[ss]) - np.min(axial_array[ss]))
+                np_slice_ = np.squeeze(slice_, axis=2)
+                im = Image.fromarray(np.uint8(np_slice_))
+                im.save(os.path.join(image_path, direction_2, str(ss)+'.png')) 
+
         pred_a, pred_c = self.predict(axial_array, corona_array, self.get_unet(img_shape))
 
         # transform them to their original size and orientations
@@ -62,22 +90,29 @@ class ClaustrumSegmentation(AbstractSegmenter):
         pred[pred > 0.40] = 1.
         pred[pred <= 0.40] = 0.
 
-        if outputDir:
+        if outputPath:
             #save the masks
-            self.save_segmentation(pred, outputDir)
+            self.save_segmentation(pred, outputPath)
         
         return pred
 
-    def save_segmentation(self, mask, outputDir):
+    def save_segmentation(self, mask, outputPath):
         """Saves provided mask as out_mask.nii.gz in the given directory.
 
         Args:
             mask (numpy.ndarray): the mask.
-            outputDir ([type]): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz
+            outputPath ([type]): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz
         """
-        if not os.path.exists(outputDir):
-            os.mkdir(outputDir)
-        filename_resultImage = os.path.join(outputDir,'out_mask.nii.gz')
+        if os.path.isdir(outputPath):
+            if not os.path.exists(outputPath):
+                os.mkdir(outputPath)
+            filename_resultImage = os.path.join(outputPath,'out_mask.nii.gz')
+        else:
+            if outputPath.endswith('nii.gz'):
+                filename_resultImage = outputPath
+            else:
+                raise NameError('Invalide file expension. Must end with .nii.gz')
+
         img_out = sitk.GetImageFromArray(mask)
         sitk.WriteImage(img_out, filename_resultImage)
 

@@ -27,11 +27,17 @@ class WMHSegmentation(AbstractSegmenter):
         self.FLAIR_path = FLAIR_path
         self.T1_path = T1_path
 
-    def perform_segmentation(self, outputDir=None):
+    def get_FLAIR_path(self):
+        return self.FLAIR_path
+
+    def get_T1_path(self):
+        return self.T1_path
+
+    def perform_segmentation(self, outputPath=None):
         """Performs segmentation by loading three required models from ./~deepNeuroSeg cache directory.
 
         Args:
-            outputDir (str, optional): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz. Defaults to None meaning not saved.
+            outputPath (str, optional): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz. Defaults to None meaning not saved.
 
         Returns:
             numpy.ndarray: the predicted mask.
@@ -39,21 +45,27 @@ class WMHSegmentation(AbstractSegmenter):
         img_shape, imgs_test, model_dir, FLAIR_array = read_data(self.FLAIR_path, self.T1_path)
         original_pred = load_model(img_shape, imgs_test, model_dir, FLAIR_array)
 
-        if outputDir:
-            self.save_segmentation(original_pred, outputDir)
+        if outputPath:
+            self.save_segmentation(original_pred, outputPath)
 
         return original_pred
 
-    def save_segmentation(self, mask, outputDir):
+    def save_segmentation(self, mask, outputPath):
         """Saves provided mask as out_mask.nii.gz in the given directory.
 
         Args:
             mask (numpy.ndarray): the mask.
-            outputDir ([type]): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz
+            outputPath ([type]): the desired directory path where the resulting mask will be saved under the name out_mask.nii.gz
         """
-        if not os.path.exists(outputDir):
-            os.mkdir(outputDir)
-        filename_resultImage = os.path.join(outputDir,'out_mask.nii.gz')
+        if os.path.isdir(outputPath):
+            if not os.path.exists(outputPath):
+                os.mkdir(outputPath)
+            filename_resultImage = os.path.join(outputPath,'out_mask.nii.gz')
+        else:
+            if outputPath.endswith('nii.gz'):
+                filename_resultImage = outputPath
+            else:
+                raise NameError('Invalide file expension. Must end with .nii.gz')
         img_out = sitk.GetImageFromArray(mask)
         FLAIR_image = sitk.ReadImage(self.FLAIR_path)
         img_out.CopyInformation(FLAIR_image) #copy the meta information (voxel size, etc.) from the input raw image

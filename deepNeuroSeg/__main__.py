@@ -3,9 +3,9 @@ from deepNeuroSeg import SegmentationFactory, SegmentationType
 
 @click.command()
 @click.option('--type', type=click.Choice(['wmh', 'c'], case_sensitive=True),  help="Either 'wmh' (White Matter Hyperintensities) or 'c' (Claustrum)")
-@click.option('--flair', help="Path to file of a FLAIR scan.", required=False, default=None, type=click.Path(exists=True))
-@click.option('--t1', help="Path to file of a T1 scan.", required=False, default=None, type=click.Path(exists=True))
-@click.option('--o', help="Directory path where to save the resulting segmentation.", required=True)
+@click.option('--flair', help="Path to nii.gz file with a FLAIR scan.", required=False, default=None, type=click.Path(exists=True))
+@click.option('--t1', help="Path to nii.gz file with a T1 scan.", required=False, default=None, type=click.Path(exists=True))
+@click.option('--o', help="Path where to save the resulting segmentation. Directory path or specific nii.gz file path.", required=True)
 def run(type, flair, t1, o):
     if type=='wmh':
         if flair is None:
@@ -15,11 +15,11 @@ def run(type, flair, t1, o):
         if t1 is not None and not t1.endswith('.nii.gz'):
             raise NameError('Invalide T1 file expension. Must end with .nii.gz')
         segmenter = SegmentationFactory.create_segmenter(SegmentationType.WMH, FLAIR_path=flair, T1_path=t1)
-        _ = segmenter.perform_segmentation(outputDir=o)
+        _ = segmenter.perform_segmentation(outputPath=o)
     elif type=='c':
         if t1 is None:
             raise TypeError('T1 scan is needed for \'c\' (Claustrum) Segmentation.')
-        if not t1.endswith('.nii'):
-            raise NameError('Invalide T1 file expension. Must end with .nii')
+        if not t1.endswith('.nii.gz'):
+            raise NameError('Invalide T1 file expension. Must end with .nii.gz')
         segmenter = SegmentationFactory.create_segmenter(SegmentationType.Claustrum, T1_path=t1)
-        _ = segmenter.perform_segmentation(outputDir=o)
+        _ = segmenter.perform_segmentation(outputPath=o)
