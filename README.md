@@ -38,10 +38,12 @@ The resulting mask will be saved with user-specified .nii.gz file name or in the
 
 ## Python
 In Python user will have to follow the next steps:
+
 Step 1: Import <code>deepNeuroSeg</code>
 ```python
 from deepNeuroSeg import SegmentationFactory, SegmentationType
 ```
+
 Step 2: Create a <code>SegmentationFactory</code> object with segmentation type either <code>SegmentationType.Claustrum</code> or <code>SegmentationType.WMH</code>. An example for WMH Segmentation with both FLAIR and T1 modalities:
 ```python
 segmenter = SegmentationFactory.create_segmenter(SegmentationType.WMH, 
