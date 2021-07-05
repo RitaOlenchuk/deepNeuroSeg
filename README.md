@@ -68,6 +68,8 @@ segmenter.save_segmentation(mask=prediction, outputDir='YOUR_PATH')
 ```
 In both cases, the output mask will be saved with user-specified .nii.gz file name or in user-specified directory under the name out_mask.nii.gz.
 
+See also [jupyter notebook for a quick start.](https://github.com/RitaOlenchuk/deepNeuroSeg/blob/main/deepNeuroSeg_quickstart.ipynb)
+
 **Special feature of Claustrum Segmentation:**
 
 The user can check the orientation of the coronal and axial images by selecting the special feature in <code>perform_segmentation</code> method:
