@@ -9,14 +9,14 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
     name='deepNeuroSeg',
     packages = ['deepNeuroSeg'],
-    version='v0.3',
+    version='v0.4',
     license='MIT', 
     author='Margaryta Olenchuk',
     description='Deep-learning Tool for White Matter (WM) lesions and Claustrum structure segmentation in brain magnetic resonance imaging (MRI).',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url = 'https://github.com/RitaOlenchuk/deepNeuroSeg',
-    download_url = 'https://github.com/RitaOlenchuk/deepNeuroSeg/archive/refs/tags/v0.3.tar.gz',
+    download_url = 'https://github.com/RitaOlenchuk/deepNeuroSeg/archive/refs/tags/v0.4.tar.gz',
     keywords = ['deep-learning', 'machine-learning', 'segmentation', 'MRI', 'White Matter Lesions', 'Claustrum'],
     python_requires='>=3.9',
     install_requires=[
