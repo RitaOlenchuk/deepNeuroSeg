@@ -66,8 +66,13 @@ class WMHSegmentation(AbstractSegmenter):
                 filename_resultImage = outputPath
             else:
                 raise NameError('Invalide file expension. Must end with .nii.gz')
-        img_out = sitk.GetImageFromArray(mask)
         FLAIR_image = sitk.ReadImage(self.FLAIR_path)
+        FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
+        if FLAIR_array.shape[1]<rows_standard:
+            mask = mask[:,:FLAIR_array.shape[1],:]
+        if FLAIR_array.shape[2]<cols_standard:
+            mask = mask[:,:,:FLAIR_array.shape[2]]
+        img_out = sitk.GetImageFromArray(mask)
         img_out.CopyInformation(FLAIR_image) #copy the meta information (voxel size, etc.) from the input raw image
         sitk.WriteImage(img_out, filename_resultImage)
 
@@ -77,30 +82,45 @@ class WMHSegmentation(AbstractSegmenter):
         else:
             return 'pretrained_FLAIR_only', WMHSegmentation.wmh_dict['pretrained_FLAIR_only']
 
+def expand_rows(image):
+    updated_image = np.zeros((image.shape[0],rows_standard,image.shape[2]))
+    updated_image[:, :image.shape[1], :image.shape[2]] = image
+    return updated_image
+
+def expand_columns(image):
+    updated_image = np.zeros((image.shape[0],image.shape[1],cols_standard))
+    updated_image[:, :image.shape[1], :image.shape[2]] = image
+    return updated_image
+
 
 def read_data(FLAIR_path, T1_path):
+    FLAIR_image = sitk.ReadImage(FLAIR_path)
+    FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
+    if FLAIR_array.shape[1]<rows_standard:
+        FLAIR_array = expand_rows(FLAIR_array)
+    if FLAIR_array.shape[2]<cols_standard:
+        FLAIR_array = expand_columns(FLAIR_array)
     if T1_path is None:
         # single modality as the input
         img_shape=(rows_standard, cols_standard, 1)
         model_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSeg/pretrained_FLAIR_only'))
-        FLAIR_image = sitk.ReadImage(FLAIR_path)
-        FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
         T1_array = []
         imgs_test = preprocessing(np.float32(FLAIR_array), np.float32(T1_array))
     else:
         img_shape=(rows_standard, cols_standard, 2)
         model_dir = os.path.realpath(os.path.expanduser('~/.deepNeuroSeg/pretrained_FLAIR_T1'))
-        FLAIR_image = sitk.ReadImage(FLAIR_path)
-        FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
         T1_image = sitk.ReadImage(T1_path)
         T1_array = sitk.GetArrayFromImage(T1_image)
+        if T1_array.shape[1]<rows_standard:
+            T1_array = expand_rows(T1_array)
+        if T1_array.shape[2]<cols_standard:
+            T1_array = expand_columns(T1_array)
         imgs_test = preprocessing(np.float32(FLAIR_array), np.float32(T1_array))
     return img_shape, imgs_test, model_dir, FLAIR_array
 
 def load_model(img_shape, imgs_test, model_dir, FLAIR_array):
     model = get_u_net(img_shape)
     logging.info(model_dir)
-    print(os.path.join(model_dir,'0.h5'))
     model.load_weights(os.path.join(model_dir,'0.h5'))  # 3 ensemble models
     logging.info('-'*30)
     logging.info('Predicting masks on test data...') 
