@@ -38,11 +38,11 @@ The resulting mask will be saved with user-specified .nii.gz file name or in the
 
 ## Python
 In Python user will have to follow the next steps:
-1. Import <code>deepNeuroSeg</code>
+Step 1: Import <code>deepNeuroSeg</code>
 ```python
 from deepNeuroSeg import SegmentationFactory, SegmentationType
 ```
-2. Create a <code>SegmentationFactory</code> object with segmentation type either <code>SegmentationType.Claustrum</code> or <code>SegmentationType.WMH</code>. An example for WMH Segmentation with both FLAIR and T1 modalities:
+Step 2: Create a <code>SegmentationFactory</code> object with segmentation type either <code>SegmentationType.Claustrum</code> or <code>SegmentationType.WMH</code>. An example for WMH Segmentation with both FLAIR and T1 modalities:
 ```python
 segmenter = SegmentationFactory.create_segmenter(SegmentationType.WMH, 
                                                     FLAIR_path='YOUR_PATH',
@@ -54,13 +54,13 @@ segmenter = SegmentationFactory.create_segmenter(SegmentationType.Claustrum,
                                                   T1_path='YOUR_PATH')
 ```
 
-3. Next the segmentation can be performed.
+Step 3: Next the segmentation can be performed.
    
-Option 1: The user can specify the output path directly in <code>perform_segmentation</code> method.
+Option a: The user can specify the output path directly in <code>perform_segmentation</code> method.
 ```python
 prediction = segmenter.perform_segmentation(outputDir='YOUR_PATH')
 ```
-Option 2: The output numpy array can be inspected first, and then saved with <code>save_segmentation</code> function.
+Option b: The output numpy array can be inspected first, and then saved with <code>save_segmentation</code> function.
 
 ```python
 prediction = segmenter.perform_segmentation()
