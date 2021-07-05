@@ -68,7 +68,7 @@ segmenter.save_segmentation(mask=prediction, outputDir='YOUR_PATH')
 ```
 In both cases, the output mask will be saved with user-specified .nii.gz file name or in user-specified directory under the name out_mask.nii.gz.
 
-See also [jupyter notebook for a quick start.](https://github.com/RitaOlenchuk/deepNeuroSeg/blob/main/deepNeuroSeg_quickstart.ipynb)
+See also the [jupyter notebook for a quick start.](https://nbviewer.jupyter.org/github/RitaOlenchuk/deepNeuroSeg/blob/main/deepNeuroSeg_quickstart.ipynb)
 
 **Special feature of Claustrum Segmentation:**
 
