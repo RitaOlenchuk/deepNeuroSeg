@@ -42,9 +42,14 @@ class WMHSegmentation(AbstractSegmenter):
         Returns:
             numpy.ndarray: the predicted mask.
         """
-        img_shape, imgs_test, model_dir, FLAIR_array = read_data(self.FLAIR_path, self.T1_path)
+        img_shape, imgs_test, model_dir, FLAIR_array, real_FLAIR_dim = read_data(self.FLAIR_path, self.T1_path)
         original_pred = load_model(img_shape, imgs_test, model_dir, FLAIR_array)
 
+        if real_FLAIR_dim[1]<rows_standard:
+            original_pred = original_pred[:,:real_FLAIR_dim[1],:]
+        if real_FLAIR_dim[2]<cols_standard:
+            original_pred = original_pred[:,:,:real_FLAIR_dim[2]]
+            
         if outputPath:
             self.save_segmentation(original_pred, outputPath)
 
@@ -67,11 +72,6 @@ class WMHSegmentation(AbstractSegmenter):
             else:
                 raise NameError('Invalide file expension. Must end with .nii.gz')
         FLAIR_image = sitk.ReadImage(self.FLAIR_path)
-        FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
-        if FLAIR_array.shape[1]<rows_standard:
-            mask = mask[:,:FLAIR_array.shape[1],:]
-        if FLAIR_array.shape[2]<cols_standard:
-            mask = mask[:,:,:FLAIR_array.shape[2]]
         img_out = sitk.GetImageFromArray(mask)
         img_out.CopyInformation(FLAIR_image) #copy the meta information (voxel size, etc.) from the input raw image
         sitk.WriteImage(img_out, filename_resultImage)
@@ -96,6 +96,7 @@ def expand_columns(image):
 def read_data(FLAIR_path, T1_path):
     FLAIR_image = sitk.ReadImage(FLAIR_path)
     FLAIR_array = sitk.GetArrayFromImage(FLAIR_image)
+    real_FLAIR_dim = FLAIR_array.shape
     if FLAIR_array.shape[1]<rows_standard:
         FLAIR_array = expand_rows(FLAIR_array)
     if FLAIR_array.shape[2]<cols_standard:
@@ -116,7 +117,7 @@ def read_data(FLAIR_path, T1_path):
         if T1_array.shape[2]<cols_standard:
             T1_array = expand_columns(T1_array)
         imgs_test = preprocessing(np.float32(FLAIR_array), np.float32(T1_array))
-    return img_shape, imgs_test, model_dir, FLAIR_array
+    return img_shape, imgs_test, model_dir, FLAIR_array, real_FLAIR_dim
 
 def load_model(img_shape, imgs_test, model_dir, FLAIR_array):
     model = get_u_net(img_shape)
