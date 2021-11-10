@@ -27,7 +27,7 @@ setup(
         'scipy==1.6.3',
         'pytest==6.2.4',
         'click==8.0.0',
-        'Pillow==8.2.0',
+        'Pillow==8.3.2',
     ],
     entry_points={
         'console_scripts': [
