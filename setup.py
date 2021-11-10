@@ -21,7 +21,7 @@ setup(
     python_requires='>=3.9',
     install_requires=[
         'numpy==1.19.5',
-        'tensorflow==2.5.0-rc3',
+        'tensorflow==2.5.1',
         'keras==2.5.0rc0',
         'SimpleITK==2.0.2',
         'scipy==1.6.3',
